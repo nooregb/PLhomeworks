@@ -13,9 +13,9 @@ begin
   s.top := 0;
 end;
 
-procedure push(var s : stack ; n : integer);
+procedure push(var s : stack ; n : integer); 
 begin
-  s.top := s.top + 1;
+  s.top := s.top + 1; 
   s.data[s.top] := n;
 end;
 
@@ -57,8 +57,8 @@ begin
 
   while not eof do
   begin
-    numLines := numLines + 1;
     readln(lines[numLines]);
+    numLines := numLines + 1;
   end;
 
   while pc <= numLines do
@@ -100,7 +100,7 @@ begin
       writeln(a);
       pc := pc + 1;
     end
-    
+
     else if lines[pc] = 'JNZ' then
     begin
       a := pop(s);
