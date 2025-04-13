@@ -1,4 +1,3 @@
-
 program q2;
 
 type
