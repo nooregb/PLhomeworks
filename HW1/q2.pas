@@ -16,7 +16,7 @@ var
 
 function isValidChar(ch: char): boolean;
 begin
-  isValidChar := ((ch >= 'a') and (ch <= 'z')) or ((ch >= '0') and (ch <= '9'));
+  isValidChar := ((ch >= 'a') and (ch <= 'z')) or ((ch >= '0') and (ch <= '9')) or (ch = ' ');
 end;
 
 begin
