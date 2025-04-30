@@ -1,4 +1,3 @@
-
 fun sig1 f a b c pred d =
   if pred d then
     f (a, b)
