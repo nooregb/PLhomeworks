@@ -70,7 +70,6 @@ in
                     (case sexp_to_list args of
                         [v] => (v, env)
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "car"), args)) env =
                     (case sexp_to_list args of
                         [v] =>
@@ -80,7 +79,6 @@ in
                                   | _ => lisp_error env
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "cdr"), args)) env =
                     (case sexp_to_list args of
                         [v] =>
@@ -90,7 +88,6 @@ in
                                   | _ => lisp_error env
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "cons"), args)) env =
                     (case sexp_to_list args of
                         [v1, v2] =>
@@ -101,7 +98,6 @@ in
                                 (CONS (val1, val2), env)
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "atom"), args)) env =
                     (case sexp_to_list args of
                         [v] =>
@@ -111,7 +107,6 @@ in
                                   | _ => (ATOM NIL, env)
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "null"), args)) env =
                     (case sexp_to_list args of
                         [v] =>
@@ -121,7 +116,6 @@ in
                                   | _ => (ATOM NIL, env)
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "eq"), args)) env =
                     (case sexp_to_list args of
                         [v1, v2] =>
@@ -137,7 +131,6 @@ in
                                   | _ => (ATOM NIL, env)
                             end
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "cond"), args)) env =
                     let
                         fun eval_conds [] = lisp_error env
@@ -156,7 +149,6 @@ in
                     in
                         eval_conds (sexp_to_list args)
                     end
-
               (* Math built-ins *)
               | eval_sexp (CONS (ATOM (SYMBOL "+"), args)) env =
                     (case List.map (fn arg => #1 (eval_sexp arg env)) (sexp_to_list args) of
@@ -193,7 +185,6 @@ in
                             then (make_int_atom (sexp_number_val v1 mod sexp_number_val v2), env)
                             else lisp_error env
                       | _ => lisp_error env)
-
               (* Compare built-ins *)
               | eval_sexp (CONS (ATOM (SYMBOL "<"), args)) env =
                     (case List.map (fn arg => #1 (eval_sexp arg env)) (sexp_to_list args) of
@@ -237,14 +228,12 @@ in
                             then (make_bool_atom (sexp_number_val v1 <> sexp_number_val v2), env)
                             else lisp_error env
                       | _ => lisp_error env)
-
               (* lambda and label handling *)
               | eval_sexp (CONS (ATOM (SYMBOL "lambda"), args)) env =
                     (case sexp_to_list args of
                         [params, body] =>
                             (CONS (ATOM (SYMBOL "closure"), CONS (params, CONS (body, ATOM (SYMBOL "__ENV__")))), env)
                       | _ => lisp_error env)
-
               | eval_sexp (CONS (ATOM (SYMBOL "label"), args)) env =
                     (case sexp_to_list args of
                         [ATOM (SYMBOL fname), func] =>
@@ -257,8 +246,7 @@ in
                                 (closure, new_env)
                             end
                       | _ => lisp_error env)
-
-              (* User-defined function application *)
+              (* User-defined function application by name *)
               | eval_sexp (CONS (ATOM (SYMBOL op_sym), args)) env =
                     let
                         val func = (find op_sym env) handle Undefined => ATOM (SYMBOL "lisp-error")
@@ -273,15 +261,11 @@ in
                                      fun addParams [] [] e = e
                                        | addParams (n::ns) (v::vs) e = addParams ns vs ((define n (fn s => find s e) v) :: e)
                                        | addParams _ _ e = e
+                                     val param_env = addParams param_names arg_values env
+                                     val label_env = (define fname (fn s => if s = fname then func else find s param_env) func) :: param_env
+                                     val (result, _) = eval_sexp body label_env
                                    in
-                                     if length param_names = length arg_values then
-                                       let
-                                         val env_with_params = addParams param_names arg_values env
-                                         val new_env = (define fname (fn s => find s env_with_params) func) :: env_with_params
-                                       in
-                                         eval_sexp body new_env
-                                       end
-                                     else lisp_error env
+                                     (result, env)
                                    end
                                | _ => lisp_error env)
                           | CONS (ATOM (SYMBOL "closure"), CONS (params, CONS (body, ATOM (SYMBOL "__ENV__")))) =>
@@ -291,20 +275,49 @@ in
                                 fun addParams [] [] e = e
                                   | addParams (n::ns) (v::vs) e = addParams ns vs ((define n (fn s => find s e) v) :: e)
                                   | addParams _ _ e = e
+                                val new_env = addParams param_names arg_values env
+                                val (result, _) = eval_sexp body new_env
                               in
-                                if length param_names = length arg_values then
-                                  let
-                                    val new_env = addParams param_names arg_values env
-                                  in
-                                    eval_sexp body new_env
-                                  end
-                                else lisp_error env
+                                (result, env)
                               end
                           | _ => lisp_error env
                     end
-
-              | eval_sexp (CONS _) env =
-                    lisp_error env
+              (* User-defined function application by value (including label-closures!) *)
+              | eval_sexp (CONS (func, args)) env =
+                    let
+                        val (func_val, _) = eval_sexp func env
+                    in
+                        case func_val of
+                            CONS (ATOM (SYMBOL "closure"), CONS (params, CONS (body, ATOM (SYMBOL "__ENV__")))) =>
+                                let
+                                    val param_names = List.map sexp_to_symbol (sexp_to_list params)
+                                    val arg_values = List.map (fn arg => #1 (eval_sexp arg env)) (sexp_to_list args)
+                                    fun addParams [] [] e = e
+                                      | addParams (n::ns) (v::vs) e = addParams ns vs ((define n (fn s => find s e) v) :: e)
+                                      | addParams _ _ e = e
+                                    val new_env = addParams param_names arg_values env
+                                    val (result, _) = eval_sexp body new_env
+                                in
+                                    (result, env)
+                                end
+                          | CONS (ATOM (SYMBOL "label-closure"), CONS (ATOM (SYMBOL fname), CONS (lambda_exp, ATOM (SYMBOL "__ENV__")))) =>
+                                (case lambda_exp of
+                                    CONS (ATOM (SYMBOL "lambda"), CONS (params, CONS (body, ATOM NIL))) =>
+                                      let
+                                        val param_names = List.map sexp_to_symbol (sexp_to_list params)
+                                        val arg_values = List.map (fn arg => #1 (eval_sexp arg env)) (sexp_to_list args)
+                                        fun addParams [] [] e = e
+                                          | addParams (n::ns) (v::vs) e = addParams ns vs ((define n (fn s => find s e) v) :: e)
+                                          | addParams _ _ e = e
+                                        val param_env = addParams param_names arg_values env
+                                        val label_env = (define fname (fn s => if s = fname then func_val else find s param_env) func_val) :: param_env
+                                        val (result, _) = eval_sexp body label_env
+                                      in
+                                        (result, env)
+                                      end
+                                  | _ => lisp_error env)
+                          | _ => lisp_error env
+                    end
 
             val result = eval_sexp sexp env
         in
