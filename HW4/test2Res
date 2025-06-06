@@ -1,0 +1,128 @@
+root@3574dd4cc286:/workspaces/VSCode-SML# smlnj tests.sml
+Standard ML of New Jersey (64-bit) v110.99.5 [built: Sun Jun 09 10:07:13 2024]
+[opening tests.sml]
+[opening hw4_q2.sml]
+[opening hw4_q1.sml]
+datatype Atom = NIL | SYMBOL of string
+datatype SExp = ATOM of Atom | CONS of SExp * SExp
+exception Undefined
+exception Empty
+val initEnv = fn : unit -> string -> SExp
+val define = fn : string -> (string -> 'a) -> 'a -> string -> 'a
+val emptyNestedEnv = fn : unit -> (string -> SExp) list
+val pushEnv = fn : 'a -> 'a list -> 'a list
+val popEnv = fn : 'a list -> 'a list
+val topEnv = fn : 'a list -> 'a
+val defineNested = fn
+  : string -> (string -> 'a) list -> 'a -> (string -> 'a) list
+val find = fn : 'a -> ('a -> 'b) list -> 'b
+val it = () : unit
+[opening parser.sml]
+datatype Atom = NIL | SYMBOL of string
+[opening hw4_q1.sml]
+datatype Atom = NIL | SYMBOL of string
+datatype SExp = ATOM of Atom | CONS of SExp * SExp
+exception Undefined
+exception Empty
+val initEnv = fn : unit -> string -> SExp
+val define = fn : string -> (string -> 'a) -> 'a -> string -> 'a
+val emptyNestedEnv = fn : unit -> (string -> SExp) list
+val pushEnv = fn : 'a -> 'a list -> 'a list
+val popEnv = fn : 'a list -> 'a list
+val topEnv = fn : 'a list -> 'a
+val defineNested = fn
+  : string -> (string -> 'a) list -> 'a -> (string -> 'a) list
+val find = fn : 'a -> ('a -> 'b) list -> 'b
+val it = () : unit
+val parse = fn : string list -> SExp
+val it = () : unit
+exception LispError
+val first = fn : 'a * 'b -> 'a
+[autoloading]
+[library $SMLNJ-BASIS/basis.cm is stable]
+[library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
+[autoloading done]
+val eval = fn
+  : string -> (string -> SExp) list -> SExp * (string -> SExp) list
+val it = () : unit
+[autoloading]
+[library $smlnj/compiler/current.cm is stable]
+[library $smlnj/compiler/amd64.cm is stable]
+[library $smlnj/viscomp/core.cm is stable]
+[library $smlnj/viscomp/basics.cm is stable]
+[library $smlnj/viscomp/elabdata.cm is stable]
+[library $smlnj/viscomp/elaborate.cm is stable]
+[library $compiler/(core.cm):Library/const-arith/sources.cm is stable]
+[library $smlnj/MLRISC/Lib.cm is stable]
+[library $SMLNJ-MLRISC/Lib.cm is stable]
+[library $SMLNJ-LIB/Util/smlnj-lib.cm is stable]
+[library $smlnj/MLRISC/Control.cm is stable]
+[library $SMLNJ-MLRISC/Control.cm is stable]
+[library $controls-lib.cm(=$SMLNJ-LIB/Controls)/controls-lib.cm is stable]
+[library $smlnj/smlnj-lib/controls-lib.cm is stable]
+[autoloading done]
+val it = () : unit
+val it = () : unit
+val first = fn : 'a * 'b -> 'a
+val print_atom = fn : Atom -> string
+val ends_with_nil = fn : SExp -> bool
+val sexp_to_string = fn : SExp -> string
+val print_cons = fn : SExp * SExp -> string
+val env = [fn] : (string -> SExp) list
+val test_simple1 = true : bool
+val test_simple3 = true : bool
+val test_simple4 = true : bool
+val test_simple5 = true : bool
+val test_simple6 = true : bool
+val test_simple7 = true : bool
+val test_simple8 = true : bool
+val test_simple9 = true : bool
+val test_simple10 = true : bool
+val test_simple11 = true : bool
+val test_simple12 = true : bool
+val test_simple13 = true : bool
+val test_simple14 = true : bool
+val test_simple15 = true : bool
+val test_simple16 = true : bool
+val test_simple17 = true : bool
+val test_simple18 = false : bool
+val test_simple19 = false : bool
+val test_simple20 = false : bool
+val test_simple21 = false : bool
+val test_simple22 = true : bool
+val test_simple23 = true : bool
+val test_simple24 = true : bool
+val test_advanced1 = true : bool
+val test_advanced2 = true : bool
+val test_advanced3 = true : bool
+val test_advanced4 = true : bool
+val test_advanced5 = true : bool
+val test_advanced6 = true : bool
+val test_advanced7 = true : bool
+val test_advanced8 = true : bool
+val test_advanced9 = true : bool
+val test_advanced10 = true : bool
+val test_advanced11 = true : bool
+val test_advanced12 = true : bool
+val test_advanced13 = true : bool
+val test_advanced14 = true : bool
+val test_advanced15 = true : bool
+val test_advanced16 = true : bool
+val test_advanced17 = true : bool
+val test_advanced18 = true : bool
+val test_advanced19 = true : bool
+val test_advanced20 = true : bool
+val test_advanced21 = true : bool
+val test_advanced22 = false : bool
+val test_advanced23 = false : bool
+val test_advanced24 = false : bool
+val test_advanced25 = false : bool
+val lambda_local = true : bool
+val test_advanced26 = false : bool
+val test_advanced27 = false : bool
+val test_advanced28 = false : bool
+val test_advanced29 = false : bool
+val freestyle1 = true : bool
+val freestyle2 = true : bool
+val freestyle3 = true : bool
+val freestyle4 = true : bool
